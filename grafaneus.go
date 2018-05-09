@@ -4,7 +4,7 @@ import "strings"
 
 func ListTemplates() [][]string  {
 	return [][]string{
-		{"goroutines", "graph", "Displays number of goroutines used by targets.", "go_goroutines"},
+		{"goroutines", "graph", "Displays number of goroutines used by GoLang targets.", "go_goroutines"},
 	}
 }
 
