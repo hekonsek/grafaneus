@@ -1,12 +1,8 @@
-package grafaneus
+package jxgraphs
 
-import "strings"
-
-func ListTemplates() [][]string  {
-	return [][]string{
-		{"goroutines", "graph", "Displays number of goroutines used by GoLang targets.", "go_goroutines"},
-	}
-}
+import (
+	"strings"
+)
 
 func GenerateGraph(title string, expression string) (string) {
 	template := `{
