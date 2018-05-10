@@ -9,13 +9,13 @@ import (
 
 func init() {
 	rootCmd.AddCommand(&cobra.Command{
-		Use:   "prometheus metric list",
+		Use:   "metric-list",
 		Short: "List metrics available in Prometheus.",
 		Long:  `List metrics available in Prometheus. Include optional metadata about the most commonly used metrics.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println("Name\t\t\t\t\t\tType\t\tDescription")
 			fmt.Println("=============================================================================================================")
-			metrics, err := jxgraphs.ListMetrics()
+			metrics, err := grafaneus.ListMetrics()
 			if err != nil {
 				panic(err)
 			}

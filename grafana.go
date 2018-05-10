@@ -1,8 +1,43 @@
-package jxgraphs
+package grafaneus
 
 import (
 	"strings"
+	"net/http"
+	"io/ioutil"
+	"encoding/json"
 )
+
+type DataSource struct {
+	Id int   `json:id`
+	Name   string `json:name`
+}
+
+func ListDataSources() ([]DataSource, error) {
+	resp, err := http.Get("http://admin:admin@localhost:3000/api/datasources")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var metricsNames []DataSource
+	err = json.Unmarshal(body, &metricsNames)
+	if err != nil {
+		return nil, err
+	}
+	return metricsNames, nil
+}
+
+func CreateDataSource() error {
+	template := `{"id":1,"orgId":1,"name":"prometheus","type":"prometheus","typeLogoUrl":"public/app/plugins/datasource/prometheus/img/prometheus_logo.svg","access":"proxy","url":"http://localhost:9090","password":"","user":"","database":"","basicAuth":false,"isDefault":true,"jsonData":{"httpMethod":"GET","keepCookies":[]},"readOnly":false}`
+	_, err := http.Post("http://admin:admin@localhost:3000/api/datasources", "application/json", strings.NewReader(template))
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
 func GenerateGraph(title string, expression string) (string) {
 	template := `{
