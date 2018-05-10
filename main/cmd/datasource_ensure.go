@@ -9,7 +9,7 @@ import (
 func init() {
 	grafana := grafaneus.Grafana{}
 	rootCmd.AddCommand(&cobra.Command{
-		Use:   "datasource-ensure",
+		Use:   "datasource ensure",
 		Short: "List metrics available in Prometheus.",
 		Long:  `List metrics available in Prometheus. Include optional metadata about the most commonly used metrics.`,
 		Run: func(cmd *cobra.Command, args []string) {

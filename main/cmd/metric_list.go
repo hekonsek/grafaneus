@@ -7,9 +7,9 @@ import (
 	"github.com/grafaneus"
 )
 
-func init() {
-	rootCmd.AddCommand(&cobra.Command{
-		Use:   "metric-list",
+func InitMetricList() *cobra.Command {
+	command := cobra.Command{
+		Use:   "list",
 		Short: "List metrics available in Prometheus.",
 		Long:  `List metrics available in Prometheus. Include optional metadata about the most commonly used metrics.`,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -23,5 +23,6 @@ func init() {
 				fmt.Printf("%s\t\t\t\t\t%s\t\t%s\n", metric.Name, metric.Type, metric.Description)
 			}
 		},
-	})
+	}
+	return &command
 }

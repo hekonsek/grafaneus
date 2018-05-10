@@ -6,10 +6,10 @@ import (
 	"fmt"
 )
 
-func init() {
+func InitMetricPlot() *cobra.Command {
 	grafana := grafaneus.Grafana{}
 	command := cobra.Command{
-		Use:   "metric-plot",
+		Use:   "plot",
 		Short: "List metrics available in Prometheus.",
 		Long:  `List metrics available in Prometheus. Include optional metadata about the most commonly used metrics.`,
 		Run: func(cmd *cobra.Command, args []string) {
@@ -21,5 +21,6 @@ func init() {
 			}
 		},
 	}
-	rootCmd.AddCommand(&command)
+	return &command
+
 }
