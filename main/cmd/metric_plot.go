@@ -7,6 +7,7 @@ import (
 )
 
 func init() {
+	grafana := grafaneus.Grafana{}
 	command := cobra.Command{
 		Use:   "metric-plot",
 		Short: "List metrics available in Prometheus.",
@@ -14,9 +15,9 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			metric, ok := grafaneus.MetricsMetadata[args[0]]
 			if ok {
-				fmt.Println(grafaneus.GenerateGraph(metric.Description, metric.Name))
+				fmt.Println(grafana.GenerateGraph(metric.Description, metric.Name))
 			} else {
-				fmt.Println(grafaneus.GenerateGraph(args[0], args[0]))
+				fmt.Println(grafana.GenerateGraph(args[0], args[0]))
 			}
 		},
 	}

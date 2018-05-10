@@ -7,12 +7,15 @@ import (
 	"encoding/json"
 )
 
-type DataSource struct {
-	Id int   `json:id`
-	Name   string `json:name`
+type Grafana struct {
 }
 
-func ListDataSources() ([]DataSource, error) {
+type DataSource struct {
+	Id   int    `json:id`
+	Name string `json:name`
+}
+
+func (*Grafana) ListDataSources() ([]DataSource, error) {
 	resp, err := http.Get("http://admin:admin@localhost:3000/api/datasources")
 	if err != nil {
 		return nil, err
@@ -30,7 +33,7 @@ func ListDataSources() ([]DataSource, error) {
 	return metricsNames, nil
 }
 
-func CreateDataSource() error {
+func (*Grafana) CreateDataSource() error {
 	template := `{"id":1,"orgId":1,"name":"prometheus","type":"prometheus","typeLogoUrl":"public/app/plugins/datasource/prometheus/img/prometheus_logo.svg","access":"proxy","url":"http://localhost:9090","password":"","user":"","database":"","basicAuth":false,"isDefault":true,"jsonData":{"httpMethod":"GET","keepCookies":[]},"readOnly":false}`
 	_, err := http.Post("http://admin:admin@localhost:3000/api/datasources", "application/json", strings.NewReader(template))
 	if err != nil {
@@ -39,7 +42,7 @@ func CreateDataSource() error {
 	return nil
 }
 
-func GenerateGraph(title string, expression string) (string) {
+func (*Grafana) GenerateGraph(title string, expression string) (string) {
 	template := `{
   "annotations": {
     "list": [
