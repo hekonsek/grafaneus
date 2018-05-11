@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"bytes"
+	"fmt"
 )
 
 type Grafana struct {
@@ -50,8 +51,57 @@ func (grafana *Grafana) ensureDatabaseExists() {
 	}
 }
 
-func (*Grafana) GenerateGraph(title string, expression string) (string) {
-	template := `{
+func (*Grafana) GenerateGraph(dashboard string, title string, expression string) (string, error) {
+	resp, err := http.Get(fmt.Sprintf("http://admin:admin@localhost:3000/api/dashboards/uid/%s", dashboard))
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	var templateWithUid string
+	if strings.Contains(string(body), "Dashboard not found") {
+		templateWithDashboardTitle := strings.Replace(dashboardTemplate, "DASHBOARD_TITLE", dashboard, 1)
+		templateWithUid = strings.Replace(templateWithDashboardTitle, "UID", dashboard, 1)
+	} else {
+		var xxx map[string]interface{}
+		json.Unmarshal(body, &xxx)
+		dashOnly := xxx["dashboard"]
+		templateWithUidBytes, _ := json.Marshal(dashOnly)
+		templateWithUid = string(templateWithUidBytes)
+	}
+	templateWithPanel := strings.Replace(templateWithUid, "PANELS", fmt.Sprintf("[%s]", graphPanelTemplate), 1)
+	templateWithExpression := strings.Replace(templateWithPanel, "EXPRESSION", expression, 1)
+	templateWithPanelTitle := strings.Replace(templateWithExpression, "PANEL_TITLE", title, 1)
+	return templateWithPanelTitle, nil
+}
+
+func (*Grafana) UploadDashboard(dashboard map[string]interface{}) error {
+	dashboardEnvelope := map[string]interface{}{
+		"dashboard": dashboard,
+		"overwrite": true,
+	}
+	dashJson, err := json.Marshal(dashboardEnvelope)
+	if err != nil {
+		return err
+	}
+	resp, err := http.Post("http://admin:admin@localhost:3000/api/dashboards/db", "application/json", bytes.NewReader(dashJson))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	_, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// JSON templates
+
+const dashboardTemplate  = `{
   "annotations": {
     "list": [
       {
@@ -70,8 +120,48 @@ func (*Grafana) GenerateGraph(title string, expression string) (string) {
   "graphTooltip": 0,
   "id": null,
   "links": [],
-  "panels": [
-    {
+  "panels": PANELS,
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ],
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "",
+  "title": "DASHBOARD_TITLE",
+  "uid": "UID"
+}`
+
+const graphPanelTemplate = `{
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -153,67 +243,4 @@ func (*Grafana) GenerateGraph(title string, expression string) (string) {
         "align": false,
         "alignLevel": null
       }
-    }
-  ],
-  "schemaVersion": 16,
-  "style": "dark",
-  "tags": [],
-  "templating": {
-    "list": []
-  },
-  "time": {
-    "from": "now-15m",
-    "to": "now"
-  },
-  "timepicker": {
-    "refresh_intervals": [
-      "5s",
-      "10s",
-      "30s",
-      "1m",
-      "5m",
-      "15m",
-      "30m",
-      "1h",
-      "2h",
-      "1d"
-    ],
-    "time_options": [
-      "5m",
-      "15m",
-      "1h",
-      "6h",
-      "12h",
-      "24h",
-      "2d",
-      "7d",
-      "30d"
-    ]
-  },
-  "timezone": "",
-  "title": "Prometheus",
-  "uid": "VvCacnnik",
-  "version": 2
-}`
-	templateWithExpression := strings.Replace(template, "EXPRESSION", expression, 1)
-	return strings.Replace(templateWithExpression, "PANEL_TITLE", title, 1)
-}
-
-func (*Grafana) UploadDashboard(dashboard map[string]interface{}) error {
-	dashboardEnvelope := map[string]interface{}{
-		"dashboard": dashboard,
-		"overwrite": true,
-	}
-	dashJson, err := json.Marshal(dashboardEnvelope)
-	if err != nil {
-		return err
-	}
-	resp, err := http.Post("http://admin:admin@localhost:3000/api/dashboards/db", "application/json", bytes.NewReader(dashJson))
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	println(string(body))
-	return nil
-}
+    }`
