@@ -1,4 +1,4 @@
-package grafaneus
+package grafana
 
 import (
 	"encoding/json"

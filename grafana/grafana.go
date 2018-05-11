@@ -1,4 +1,4 @@
-package grafaneus
+package grafana
 
 import (
 	"strings"
@@ -57,18 +57,18 @@ func (*Grafana) GenerateGraph(dashboard string, title string, expression string)
 		return "", err
 	}
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	dashboardApiResponse, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return "", err
 	}
 	var templateWithUid string
-	if strings.Contains(string(body), "Dashboard not found") {
+	if strings.Contains(string(dashboardApiResponse), "Dashboard not found") {
 		templateWithDashboardTitle := strings.Replace(dashboardTemplate, "DASHBOARD_TITLE", dashboard, 1)
 		templateWithUid = strings.Replace(templateWithDashboardTitle, "UID", dashboard, 1)
 	} else {
-		var xxx map[string]interface{}
-		json.Unmarshal(body, &xxx)
-		dashOnly := xxx["dashboard"]
+		var existingDashboard map[string]interface{}
+		json.Unmarshal(dashboardApiResponse, &existingDashboard)
+		dashOnly := existingDashboard["dashboard"]
 		templateWithUidBytes, _ := json.Marshal(dashOnly)
 		templateWithUid = string(templateWithUidBytes)
 	}
@@ -106,7 +106,7 @@ func (*Grafana) UploadDashboard(dashboard map[string]interface{}) error {
 
 // JSON templates
 
-const dashboardTemplate  = `{
+const dashboardTemplate = `{
   "annotations": {
     "list": [
       {

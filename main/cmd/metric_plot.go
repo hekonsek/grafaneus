@@ -2,15 +2,16 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/hekonsek/grafaneus"
+	"github.com/hekonsek/grafaneus/grafana"
 	"encoding/json"
 	"errors"
+	"github.com/hekonsek/grafaneus"
 )
 
 var PlotDashboardOption string
 
 func InitMetricPlot() *cobra.Command {
-	grafana := grafaneus.Grafana{}
+	grafana := grafana.Grafana{}
 	command := cobra.Command{
 		Use:   "plot [dashboard]",
 		Short: "List metrics available in Prometheus.",
