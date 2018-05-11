@@ -72,7 +72,12 @@ func (*Grafana) GenerateGraph(dashboard string, title string, expression string)
 		templateWithUidBytes, _ := json.Marshal(dashOnly)
 		templateWithUid = string(templateWithUidBytes)
 	}
-	templateWithPanel := strings.Replace(templateWithUid, "PANELS", fmt.Sprintf("[%s]", graphPanelTemplate), 1)
+
+	d := Dashboard{}
+	d.importModel(templateWithUid)
+	d.addPanel(graphPanelTemplate)
+	templateWithPanel, _ := d.exportModel()
+
 	templateWithExpression := strings.Replace(templateWithPanel, "EXPRESSION", expression, 1)
 	templateWithPanelTitle := strings.Replace(templateWithExpression, "PANEL_TITLE", title, 1)
 	return templateWithPanelTitle, nil
@@ -120,7 +125,7 @@ const dashboardTemplate  = `{
   "graphTooltip": 0,
   "id": null,
   "links": [],
-  "panels": PANELS,
+  "panels": [],
   "schemaVersion": 16,
   "style": "dark",
   "tags": [],
@@ -174,7 +179,7 @@ const graphPanelTemplate = `{
         "x": 0,
         "y": 0
       },
-      "id": 2,
+      "id": 1,
       "legend": {
         "avg": false,
         "current": false,
