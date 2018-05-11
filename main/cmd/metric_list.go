@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/grafaneus"
+	"github.com/hekonsek/grafaneus"
 )
 
 func InitMetricList() *cobra.Command {
