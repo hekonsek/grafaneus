@@ -42,6 +42,13 @@ func (*Grafana) CreateDataSource() error {
 	return nil
 }
 
+func (grafana *Grafana) ensureDatabaseExists() {
+	dataSources, _ := grafana.ListDataSources()
+	if len(dataSources) == 0 {
+		grafana.CreateDataSource()
+	}
+}
+
 func (*Grafana) GenerateGraph(title string, expression string) (string) {
 	template := `{
   "annotations": {
