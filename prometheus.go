@@ -6,6 +6,9 @@ import (
 	"encoding/json"
 )
 
+type Prometheus struct {
+}
+
 type MetricsNames struct {
 	Status string   `json:status`
 	Data   []string `json:data`
@@ -18,8 +21,9 @@ type Metric struct {
 }
 
 var MetricsMetadata = map[string]Metric{
-	"go_goroutines": {Name: "go_goroutines", Type: "gauge", Description: "Number of goroutines that currently exist."},
-	"go_threads":    {Name: "go_threads", Type: "gauge", Description: "Number of OS threads created."},
+	"go_goroutines": {Name: "go_goroutines", Type: "gauge", Description: "Number of goroutines that currently exist for GoLang process."},
+	"go_threads":    {Name: "go_threads", Type: "gauge", Description: "Number of OS threads that currently exist for GoLang process."},
+	"process_open_fds":    {Name: "process_open_fds", Type: "gauge", Description: "Number of open file descriptors for process."},
 }
 
 func (m *MetricsNames) Names() ([]string) {
