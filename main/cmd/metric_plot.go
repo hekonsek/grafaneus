@@ -19,6 +19,7 @@ func InitMetricPlot() *cobra.Command {
 			dashboard := args[0]
 			metricName := args[1]
 			metric, ok := grafaneus.MetricsMetadata[metricName]
+			grafana.EnsureDatabaseExists()
 			var jsonx string
 			if ok {
 				jsonx, _ = grafana.GenerateGraph(dashboard, metric.Description, metric.Name)

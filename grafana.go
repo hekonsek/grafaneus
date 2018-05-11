@@ -44,7 +44,7 @@ func (*Grafana) CreateDataSource() error {
 	return nil
 }
 
-func (grafana *Grafana) ensureDatabaseExists() {
+func (grafana *Grafana) EnsureDatabaseExists() {
 	dataSources, _ := grafana.ListDataSources()
 	if len(dataSources) == 0 {
 		grafana.CreateDataSource()
@@ -75,7 +75,7 @@ func (*Grafana) GenerateGraph(dashboard string, title string, expression string)
 
 	d := Dashboard{}
 	d.importModel(templateWithUid)
-	d.addPanel(graphPanelTemplate)
+	d.addPanelJson(graphPanelTemplate)
 	templateWithPanel, _ := d.exportModel()
 
 	templateWithExpression := strings.Replace(templateWithPanel, "EXPRESSION", expression, 1)
