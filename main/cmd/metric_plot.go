@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/grafaneus"
-	"fmt"
+	"encoding/json"
 )
 
 func InitMetricPlot() *cobra.Command {
@@ -14,13 +14,19 @@ func InitMetricPlot() *cobra.Command {
 		Long:  `List metrics available in Prometheus. Include optional metadata about the most commonly used metrics.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			metric, ok := grafaneus.MetricsMetadata[args[0]]
+			var jsonx string
 			if ok {
-				fmt.Println(grafana.GenerateGraph(metric.Description, metric.Name))
+				jsonx = grafana.GenerateGraph(metric.Description, metric.Name)
 			} else {
-				fmt.Println(grafana.GenerateGraph(args[0], args[0]))
+				jsonx = grafana.GenerateGraph(args[0], args[0])
+			}
+			var dash map[string]interface{}
+			json.Unmarshal([]byte(jsonx), &dash)
+			err := grafana.UploadDashboard(dash)
+			if err != nil {
+				panic(err)
 			}
 		},
 	}
 	return &command
-
 }

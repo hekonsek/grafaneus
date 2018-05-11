@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"io/ioutil"
 	"encoding/json"
+	"bytes"
 )
 
 type Grafana struct {
@@ -67,7 +68,7 @@ func (*Grafana) GenerateGraph(title string, expression string) (string) {
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 1,
+  "id": null,
   "links": [],
   "panels": [
     {
@@ -196,4 +197,23 @@ func (*Grafana) GenerateGraph(title string, expression string) (string) {
 }`
 	templateWithExpression := strings.Replace(template, "EXPRESSION", expression, 1)
 	return strings.Replace(templateWithExpression, "PANEL_TITLE", title, 1)
+}
+
+func (*Grafana) UploadDashboard(dashboard map[string]interface{}) error {
+	dashboardEnvelope := map[string]interface{}{
+		"dashboard": dashboard,
+		"overwrite": true,
+	}
+	dashJson, err := json.Marshal(dashboardEnvelope)
+	if err != nil {
+		return err
+	}
+	resp, err := http.Post("http://admin:admin@localhost:3000/api/dashboards/db", "application/json", bytes.NewReader(dashJson))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	println(string(body))
+	return nil
 }
